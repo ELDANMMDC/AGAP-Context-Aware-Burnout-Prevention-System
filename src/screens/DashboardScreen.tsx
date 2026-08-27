@@ -3,6 +3,8 @@ import type { MockState, NavTab, RiskLevel } from '../types/agap';
 import { Card, PrimaryBtn, RiskBadge, SectionLabel, StatusIndicator, TextBtn, Modal } from '../components/ui';
 import { TrendChart } from '../components/charts/TrendChart';
 import { signalColor } from '../lib/signal';
+import { NotificationPopover } from '../components/notifications/NotificationPopover.tsx';
+
 
 export function DashboardScreen({
   state, userName, monitoring, onNav,
@@ -41,8 +43,9 @@ export function DashboardScreen({
             {"Here's how your work patterns have looked today."}
           </p>
         </div>
-        <div className="pt-1">
+        <div className="pt-1 flex items-center gap-2">
           <StatusIndicator active={monitoring} />
+          <NotificationPopover />
         </div>
       </div>
 
