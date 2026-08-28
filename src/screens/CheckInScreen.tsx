@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { CHECK_IN_QUESTIONS } from '../data/mockData';
+import { getCheckInQuestions } from '../services/checkInService';
 import { Card, PrimaryBtn, SecondaryBtn, ProgressBar } from '../components/ui';
 
 export function CheckInScreen({ onComplete, onBack }: { onComplete: () => void; onBack: () => void }) {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<number[]>(Array(CHECK_IN_QUESTIONS.length).fill(0));
-  const total = CHECK_IN_QUESTIONS.length;
+  const questions = getCheckInQuestions();
+
+  const [answers, setAnswers] = useState<number[]>(
+  Array(questions.length).fill(0)
+);
+
+const total = questions.length;
   const isLast = step === total - 1;
 
   return (
@@ -25,7 +30,7 @@ export function CheckInScreen({ onComplete, onBack }: { onComplete: () => void; 
 
       <Card className="p-6 mb-5">
         <p className="text-sm font-medium text-[#1F2937] mb-8 leading-relaxed">
-          {CHECK_IN_QUESTIONS[step]}
+          {questions[step]}
         </p>
         <div className="flex items-center justify-between mb-3">
           {[1, 2, 3, 4, 5].map(v => (

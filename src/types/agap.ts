@@ -8,7 +8,7 @@ export interface Signal {
   direction: 'up' | 'down';
 }
 
-export interface MockState {
+export interface DashboardData {
   riskScore: number;
   riskLevel: RiskLevel;
   activeTime: string;
