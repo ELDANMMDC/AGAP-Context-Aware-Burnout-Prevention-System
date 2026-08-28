@@ -10,23 +10,14 @@ import {
   Modal,
   TextBtn,
 } from '../components/ui';
-import { DAYS } from '../data/mockData';
+import {
+  getDays,
+  getDefaultSchedule,
+  type ScheduleDay,
+} from '../services/settingsService';
 
-type ScheduleDay = {
-  enabled: boolean;
-  start: string;
-  end: string;
-};
-
-const INITIAL_SCHEDULE: ScheduleDay[] = [
-  { enabled: true, start: '09:00', end: '18:00' },
-  { enabled: true, start: '09:00', end: '18:00' },
-  { enabled: true, start: '09:00', end: '18:00' },
-  { enabled: true, start: '09:00', end: '18:00' },
-  { enabled: true, start: '09:00', end: '18:00' },
-  { enabled: false, start: '09:00', end: '18:00' },
-  { enabled: false, start: '09:00', end: '18:00' },
-];
+const DAYS = getDays();
+const INITIAL_SCHEDULE = getDefaultSchedule();
 
 const IDLE_PRESETS = [
   { value: '60', label: '1 minute' },

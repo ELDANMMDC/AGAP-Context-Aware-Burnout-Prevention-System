@@ -1,6 +1,6 @@
-import type { MockState, RiskLevel } from '../types/agap';
+import type { DashboardData, RiskLevel } from '../types/agap';
 
-const LOW_STATE: MockState = {
+const LOW_STATE: DashboardData = {
   riskScore: 32,
   riskLevel: 'Low',
   activeTime: '5h 10m',
@@ -20,7 +20,7 @@ const LOW_STATE: MockState = {
   recommendation: "You're maintaining a steady rhythm. Your patterns are within your normal range.",
 };
 
-const ELEVATED_STATE: MockState = {
+const ELEVATED_STATE: DashboardData = {
   riskScore: 64,
   riskLevel: 'Elevated',
   activeTime: '6h 42m',
@@ -40,7 +40,7 @@ const ELEVATED_STATE: MockState = {
   recommendation: "You've had a sustained period of work activity. Consider stepping away for a few minutes before continuing.",
 };
 
-const HIGH_STATE: MockState = {
+const HIGH_STATE: DashboardData = {
   riskScore: 82,
   riskLevel: 'High',
   activeTime: '8h 14m',
@@ -60,7 +60,7 @@ const HIGH_STATE: MockState = {
   recommendation: 'Your patterns suggest you may benefit from a meaningful break. Even 15 minutes away from the screen can help.',
 };
 
-export const MOCK_STATES: Record<RiskLevel, MockState> = {
+export const MOCK_STATES: Record<RiskLevel, DashboardData> = {
   Low: LOW_STATE,
   Elevated: ELEVATED_STATE,
   High: HIGH_STATE,

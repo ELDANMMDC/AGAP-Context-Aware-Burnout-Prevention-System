@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { MockState, NavTab, RiskLevel } from '../types/agap';
+import type { DashboardData, NavTab, RiskLevel } from '../types/agap';
 import { Card, PrimaryBtn, RiskBadge, SectionLabel, StatusIndicator, TextBtn, Modal } from '../components/ui';
 import { TrendChart } from '../components/charts/TrendChart';
 import { signalColor } from '../lib/signal';
@@ -9,7 +9,7 @@ import { NotificationPopover } from '../components/notifications/NotificationPop
 export function DashboardScreen({
   state, userName, monitoring, onNav,
 }: {
-  state: MockState; userName: string; monitoring: boolean; onNav: (tab: NavTab) => void;
+  state: DashboardData; userName: string; monitoring: boolean; onNav: (tab: NavTab) => void;
 }) {
   const [showExplainer, setShowExplainer] = useState(false);
   const hour = new Date().getHours();

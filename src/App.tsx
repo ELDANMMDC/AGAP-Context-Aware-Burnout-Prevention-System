@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { NavTab, OnboardingStep, RiskLevel } from './types/agap';
-import { MOCK_STATES } from './data/mockData';
+import { getDashboardData } from './services/dashboardService';
 import { Sidebar } from './components/layout/Sidebar';
 import { TrayMenu, NotificationToast, PrototypeSwitcher } from './components/overlays';
 import { WelcomeScreen, ProfileScreen, WorkScheduleScreen, CalibrationScreen } from './screens/onboarding/OnboardingScreens';
@@ -19,7 +19,7 @@ export default function App() {
   const [showNotif, setShowNotif] = useState(false);
   const [checkInPhase, setCheckInPhase] = useState<'default' | 'complete'>('default');
 
-  const state = MOCK_STATES[riskLevel];
+  const state = getDashboardData(riskLevel);
 
   const navTo = (tab: NavTab) => {
     setActiveTab(tab);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { PrimaryBtn, SecondaryBtn, Card, ProgressBar, Toggle } from '../../components/ui';
-import { DAYS } from '../../data/mockData';
+import { getDays } from '../../services/settingsService';
 
 export function OnboardingShell({ children, step, total }: {
   children: ReactNode; step?: number; total?: number;
@@ -149,6 +149,7 @@ export function ProfileScreen({ onNext, onBack }: { onNext: (name: string) => vo
 // ─────────────────────────────────────────────────────────────
 
 export function WorkScheduleScreen({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+  const DAYS = getDays();
   const [enabled, setEnabled] = useState([true, true, true, true, true, false, false]);
 
   return (
