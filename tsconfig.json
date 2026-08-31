@@ -19,5 +19,10 @@
     "strict": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "vite.config.ts"]
+  "include": [
+    "src",
+    "electron",
+    "vite.config.ts",
+    "electron.vite.config.ts"
+  ]
 }
