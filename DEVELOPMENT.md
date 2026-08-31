@@ -4,7 +4,7 @@ This document explains how to set up, run, and develop AGAP.
 
 It describes the project's current architecture and the development conventions that will be used as AGAP evolves.
 
-> **Current status:** AGAP is currently a React + TypeScript + Vite frontend prototype using mock data. Electron, backend, database, authentication, and real API integration are planned for later development phases.
+> **Current status:** AGAP has a completed React frontend prototype, an established GitHub development workflow, and a working Electron desktop foundation. The project is currently preparing its service/data boundaries before backend and real system integration are introduced.
 
 ---
 
@@ -12,9 +12,9 @@ It describes the project's current architecture and the development conventions 
 
 AGAP is being developed as a desktop application.
 
-The current project is the completed frontend prototype that will serve as the foundation for the future Electron application.
+The current project consists of a React frontend running inside an Electron desktop application. The frontend currently uses mock data while the architecture is being prepared for future backend and system integration.
 
-The current prototype includes:
+The current implementation includes:
 
 * React UI
 * TypeScript
@@ -25,18 +25,21 @@ The current prototype includes:
 * Mock data
 * Type definitions
 * Frontend interaction/state
-
-The current prototype does **not** yet contain:
-
-* Electron
 * Electron Main process
-* Preload
-* IPC
+* Electron Preload
+* IPC communication
+* Initial service/data boundary preparation
+
+The current project does **not yet** contain:
+
 * Backend/API
 * Database
 * Authentication
 * Real telemetry/data collection
+* Production API integration
+* Final monitoring implementation
 * Automated testing setup
+* Production packaging/deployment configuration
 
 These will be introduced in later development phases.
 
@@ -52,11 +55,12 @@ The current project uses:
 | TypeScript     | Programming language              |
 | Vite 8         | Development server and build tool |
 | Tailwind CSS 4 | Styling                           |
+| Electron 44    | Desktop application runtime       |
 | pnpm 10.34.3   | Package manager                   |
 | Node.js 22     | Runtime/development environment   |
 | Oxfmt          | Code formatting                   |
 
-The project's Node and pnpm versions are specified in `.mise.toml`.
+The project's Node and pnpm versions are specified in **`.mise.toml`**.
 
 ---
 
@@ -77,7 +81,7 @@ pnpm --version
 git --version
 ```
 
-The project should use the versions specified by `.mise.toml`.
+The project should use the versions specified by **`.mise.toml`**.
 
 ---
 
@@ -101,7 +105,7 @@ Install dependencies:
 pnpm install
 ```
 
-The project uses `pnpm-lock.yaml`.
+The project uses **`pnpm-lock.yaml`**.
 
 Do not replace pnpm with another package manager unless the team explicitly decides to change the project configuration.
 
@@ -109,7 +113,9 @@ Do not replace pnpm with another package manager unless the team explicitly deci
 
 # 5. Running the Project
 
-Start the development server:
+## 5.1 Run the frontend
+
+Start the Vite development server:
 
 ```bash
 pnpm dev
@@ -117,63 +123,153 @@ pnpm dev
 
 Vite will provide the local development URL in the terminal.
 
-Open that URL in the browser.
+The current development server uses port `8443`.
+
+The frontend can be opened directly in a browser during renderer development.
+
+---
+
+## 5.2 Build the Electron processes
+
+Build the Electron Main and Preload processes:
+
+```bash
+pnpm build:electron
+```
+
+This produces the Electron build output in:
+
+```text
+dist-electron/
+├── main.js
+└── preload.cjs
+```
+
+The exact generated contents may change as the Electron configuration evolves.
+
+---
+
+## 5.3 Run the Electron application
+
+Start Vite first:
+
+```bash
+pnpm dev
+```
+
+Then, in another terminal:
+
+```bash
+pnpm build:electron
+```
+
+Start Electron:
+
+```bash
+pnpm dev:electron
+```
+
+The AGAP interface should open inside an Electron desktop window.
 
 ---
 
 # 6. Building the Project
---
+
+Build the React renderer:
+
+```bash
+pnpm build
+```
+
+Build the Electron processes:
+
+```bash
+pnpm build:electron
+```
+
+The renderer and Electron processes currently use separate Vite build configurations.
+
+The renderer uses:
+
+```text
+vite.config.ts
+```
+
+The Electron processes use:
+
+```text
+electron.vite.config.ts
+```
+
+These configurations should remain separate because they target different runtime environments.
+
 ---
 
 # 7. Current Project Structure
 
-The current source structure is:
+The current project structure is:
 
 ```text
-src/
-├── App.tsx
-├── main.tsx
-├── index.css
+AGAP_BPS/
+
+├── src/
+│   ├── App.tsx
+│   ├── main.tsx
+│   ├── index.css
+│   │
+│   ├── components/
+│   │   ├── charts/
+│   │   │   └── TrendChart.tsx
+│   │   ├── layout/
+│   │   │   └── Sidebar.tsx
+│   │   ├── icons.tsx
+│   │   ├── overlays.tsx
+│   │   └── ui/
+│   │       └── index.tsx
+│   │
+│   ├── data/
+│   │   └── mockData.ts
+│   │
+│   ├── lib/
+│   │   └── signal.ts
+│   │
+│   ├── screens/
+│   │   ├── AboutScreen.tsx
+│   │   ├── CheckInScreen.tsx
+│   │   ├── DashboardScreen.tsx
+│   │   ├── SettingsScreen.tsx
+│   │   └── onboarding/
+│   │       └── OnboardingScreens.tsx
+│   │
+│   ├── services/
+│   │
+│   └── types/
+│       └── agap.ts
 │
-├── components/
-│   ├── charts/
-│   │   └── TrendChart.tsx
-│   ├── layout/
-│   │   └── Sidebar.tsx
-│   ├── icons.tsx
-│   ├── overlays.tsx
-│   └── ui/
-│       └── index.tsx
+├── electron/
+│   ├── main.ts
+│   └── preload.ts
 │
-├── data/
-│   └── mockData.ts
-│
-├── lib/
-│   └── signal.ts
-│
-├── screens/
-│   ├── AboutScreen.tsx
-│   ├── CheckInScreen.tsx
-│   ├── DashboardScreen.tsx
-│   ├── SettingsScreen.tsx
-│   └── onboarding/
-│       └── OnboardingScreens.tsx
-│
-└── types/
-    └── agap.ts
+├── electron.vite.config.ts
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── README.md
+├── DEVELOPMENT.md
+└── CONTRIBUTING.md
 ```
 
 ---
 
 # 8. Application Entry Point
 
-The application begins at:
+The React application begins at:
 
 ```text
 src/main.tsx
 ```
 
-The basic flow is:
+The basic renderer flow is:
 
 ```text
 index.html
@@ -208,9 +304,9 @@ It currently manages things such as:
 
 It also connects the main screens and shared layout components.
 
-This is acceptable for the current prototype.
+This remains acceptable for the current stage.
 
-As the application grows, some of these responsibilities may be moved into dedicated hooks, state modules, or services.
+As the application grows, responsibilities may gradually move into dedicated hooks, state modules, or services.
 
 Do not perform a large rewrite simply for the sake of restructuring.
 
@@ -256,6 +352,8 @@ OnboardingScreens
 
 Screens should represent larger sections of the application and compose reusable components.
 
+Screens should avoid directly implementing infrastructure or platform-specific logic.
+
 ---
 
 # 12. Mock Data
@@ -266,13 +364,13 @@ Current mock data is located in:
 src/data/mockData.ts
 ```
 
-This currently provides the data used by the frontend prototype.
+Mock data currently allows frontend development to continue before the backend and real data sources are available.
 
 Mock data is intentionally temporary.
 
 Do not treat `mockData.ts` as the final data architecture.
 
-The planned transition is:
+The project is transitioning toward:
 
 ```text
 CURRENT
@@ -280,24 +378,34 @@ CURRENT
 Screen
   ↓
 Mock Data
+```
 
+to:
 
+```text
 PREPARATION
 
 Screen
   ↓
-Service / Data Provider
+Service
+  ↓
+Mock Provider
   ↓
 Mock Data
+```
 
+and eventually:
 
+```text
 FUTURE
 
 Screen
   ↓
-Service / API Client
+Service
   ↓
-Backend
+API Client
+  ↓
+Backend API
   ↓
 Database
 ```
@@ -306,7 +414,53 @@ The purpose of this separation is to allow the backend to replace the mock imple
 
 ---
 
-# 13. Types
+# 13. Service / Data Boundary
+
+The service layer is being introduced to separate UI behavior from data access.
+
+The basic principle is:
+
+```text
+Screen
+  ↓
+Service
+  ↓
+Provider
+```
+
+The screen should ask for the information it needs without knowing whether that information comes from mock data, an API, a local store, or another implementation.
+
+For example:
+
+```text
+DashboardScreen
+      ↓
+dashboardService
+      ↓
+mockDashboardProvider
+```
+
+Later:
+
+```text
+DashboardScreen
+      ↓
+dashboardService
+      ↓
+apiClient
+      ↓
+Backend API
+```
+
+This boundary should be introduced gradually.
+
+Do not move every existing piece of code into a service simply because a `services/` folder exists.
+
+A service should be created when there is a meaningful data-access or application-operation boundary.
+
+---
+
+# 14. Types
 
 Shared TypeScript types are currently located in:
 
@@ -318,9 +472,11 @@ Types should be reused rather than duplicated across components.
 
 If multiple parts of the application depend on the same data structure, define the type in an appropriate shared location.
 
+Services and providers should use the same shared domain types as the UI where appropriate.
+
 ---
 
-# 14. Utilities
+# 15. Utilities
 
 Small reusable logic that does not belong to a specific screen or component can be placed in:
 
@@ -336,9 +492,11 @@ src/lib/signal.ts
 
 Do not turn `lib/` into a general dumping ground for unrelated code.
 
+If code represents a data-access operation, it should generally belong to the service/provider boundary instead.
+
 ---
 
-# 15. Styling
+# 16. Styling
 
 The project uses Tailwind CSS.
 
@@ -350,7 +508,231 @@ Do not redesign unrelated screens while implementing a feature.
 
 ---
 
-# 16. Development Workflow
+# 17. Electron Architecture
+
+Electron has now been introduced as the desktop runtime.
+
+The current architecture is:
+
+```text
+              AGAP Desktop Application
+
+┌─────────────────────────────────────┐
+│             Renderer                │
+│                                     │
+│          React / TypeScript         │
+└──────────────────┬──────────────────┘
+                   │
+                   ▼
+               Preload
+                   │
+                   ▼
+                  IPC
+                   │
+                   ▼
+┌─────────────────────────────────────┐
+│          Electron Main              │
+│                                     │
+│       Desktop/system boundary       │
+└──────────────────┬──────────────────┘
+                   │
+                   ▼
+                  OS
+```
+
+---
+
+# 18. Electron Main Process
+
+The Electron Main process is located at:
+
+```text
+electron/main.ts
+```
+
+The Main process is responsible for Electron application lifecycle and desktop-level functionality.
+
+It currently:
+
+* creates the Electron window
+* loads the Vite development application
+* loads the production renderer
+* registers IPC handlers
+* manages the Electron application lifecycle
+
+The Main process should eventually contain only controlled desktop/system operations.
+
+It should not become a general-purpose location for application UI logic.
+
+---
+
+# 19. Preload
+
+The preload script is located at:
+
+```text
+electron/preload.ts
+```
+
+The preload creates the controlled bridge between the renderer and Electron Main.
+
+The current bridge exposes a basic IPC connection test.
+
+The renderer communicates through the exposed API rather than directly importing Electron.
+
+The Electron configuration uses:
+
+```text
+contextIsolation: true
+nodeIntegration: false
+```
+
+These settings should remain enabled.
+
+The preload should expose only the minimum API required by the renderer.
+
+---
+
+# 20. IPC
+
+IPC provides communication between the renderer and Electron Main process.
+
+The current architecture is:
+
+```text
+React Renderer
+      ↓
+window.agap
+      ↓
+Preload
+      ↓
+ipcRenderer
+      ↓
+ipcMain
+      ↓
+Electron Main
+```
+
+The current bridge includes:
+
+```text
+agap:ping
+```
+
+This is currently a connectivity test rather than a production AGAP capability.
+
+Future IPC channels should be defined deliberately according to actual application requirements.
+
+Do not expose unrestricted Electron APIs to the renderer.
+
+---
+
+# 21. Electron and Service Responsibilities
+
+The service/data boundary and Electron boundary solve different problems.
+
+The service layer answers:
+
+> Where does the application's data or operation come from?
+
+The Electron boundary answers:
+
+> How does the renderer safely access desktop/system capabilities?
+
+For example:
+
+```text
+DashboardScreen
+      ↓
+dashboardService
+      ↓
+Data Provider
+```
+
+is a data boundary.
+
+Whereas:
+
+```text
+MonitoringService
+      ↓
+window.agap.monitoring
+      ↓
+Preload
+      ↓
+IPC
+      ↓
+Electron Main
+```
+
+would represent a future desktop capability boundary.
+
+These boundaries should not be collapsed into one layer.
+
+---
+
+# 22. Renderer → Backend Boundary
+
+The future backend architecture is:
+
+```text
+React Renderer
+      ↓
+Frontend Service
+      ↓
+API Client
+      │
+      │ HTTPS
+      ▼
+Backend API
+      ↓
+Database
+```
+
+The renderer should not directly access the database.
+
+The backend should be responsible for:
+
+* API endpoints
+* business logic
+* authentication
+* authorization
+* validation
+* database access
+
+---
+
+# 23. Renderer → Electron Boundary
+
+Desktop/system functionality should follow:
+
+```text
+React Renderer
+      ↓
+Service / Desktop API
+      ↓
+Preload
+      ↓
+IPC
+      ↓
+Electron Main
+      ↓
+Operating System
+```
+
+Potential future capabilities may include:
+
+* system monitoring
+* native notifications
+* system tray functionality
+* approved filesystem operations
+* desktop-specific functionality
+
+These capabilities should be exposed through narrow APIs rather than giving the renderer unrestricted system access.
+
+---
+
+# 24. Development Workflow
 
 The standard development workflow is:
 
@@ -378,11 +760,11 @@ Code Review
 Merge into develop
 ```
 
-See `CONTRIBUTING.md` for the detailed rules.
+See **`CONTRIBUTING.md`** for the detailed rules.
 
 ---
 
-# 17. Working on a New Feature
+# 25. Working on a New Feature
 
 Start with:
 
@@ -399,11 +781,19 @@ git checkout -b feature/my-feature
 
 Develop the feature.
 
-Run:
+Run the frontend:
 
 ```bash
 pnpm dev
 ```
+
+If the feature involves Electron, also build and run the Electron layer:
+
+```bash
+pnpm build:electron
+pnpm dev:electron
+```
+
 Test the application.
 
 Commit your changes:
@@ -419,188 +809,55 @@ Push:
 git push -u origin feature/my-feature
 ```
 
-Open a Pull Request into `develop`.
+Open a Pull Request into **`develop`**.
 
 ---
 
-# 18. Current Architecture
+# 26. Architecture Rules
 
-The current application is:
+The following rules should guide development:
 
-```text
-Vite
-  ↓
-React
-  ↓
-App.tsx
-  ↓
-Screens
-  ↓
-Components
-  ↓
-Mock Data
-```
+### UI
 
-There is currently no Electron layer.
+UI components should focus on presentation and user interaction.
 
-This is important when working on the current prototype.
+### Screens
 
-Do not create Electron-specific code until the Electron integration phase begins.
+Screens should coordinate application-level UI behavior but should avoid direct infrastructure access.
 
----
+### Services
 
-# 19. Planned Electron Architecture (not final)
+Services should provide application-facing operations and hide the underlying data source or implementation.
 
-Electron will be introduced in a later phase.
+### Providers
 
-The intended architecture is:
+Providers should implement a particular data source, such as mock data or an API client.
 
-```text
-                 AGAP Desktop Application
+### Electron
 
-                 ┌───────────────────────┐
-                 │       Renderer        │
-                 │   React application   │
-                 └───────────┬───────────┘
-                             │
-                          Preload
-                             │
-                            IPC
-                             │
-                 ┌───────────▼───────────┐
-                 │    Electron Main      │
-                 │ native/system work    │
-                 └───────────┬───────────┘
-                             │
-                            OS
-```
+Electron Main should handle desktop/system functionality.
 
-The renderer should handle UI and frontend behavior.
+### Preload
 
-The Electron Main process should handle desktop/system-level functionality.
+Preload should expose only narrowly defined APIs required by the renderer.
 
-The preload should expose only the APIs that the renderer actually needs.
+### Backend
 
-The renderer should not receive unrestricted Node.js or Electron access.
+The backend should handle server-side business logic and database access.
+
+### Database
+
+The database should never be accessed directly by the renderer.
 
 ---
 
-# 20. Backend Architecture (not final)
+# 27. Future Project Structure
 
-The planned backend architecture is:
-
-```text
-React Renderer
-      │
-      ↓
-Frontend Service / API Client
-      │
-      │ HTTPS
-      ↓
-Backend API
-      │
-      ↓
-Database
-```
-
-The database should be accessed by the backend rather than directly by the renderer.
-
----
-
-# 21. Electron and Backend Responsibilities
-
-The two boundaries serve different purposes.
-
-### Renderer → Backend
-
-Used for ordinary application data.
-
-Examples:
-
-```text
-Get dashboard data
-Save settings
-Submit check-in
-Retrieve user information
-```
-
-### Renderer → Preload → Main
-
-Used for desktop/system capabilities.
-
-Examples may eventually include:
-
-```text
-System monitoring
-Native notifications
-System tray
-Filesystem operations
-Desktop-specific functionality
-```
-
-This separation should be maintained as AGAP grows.
-
----
-
-# 22. Backend and Database
-
-The backend should be responsible for:
-
-* API endpoints
-* business logic
-* authentication
-* authorization
-* validation
-* database access
-
-The database should not be exposed directly to the renderer.
-
-Database credentials must never be included in the renderer or committed to GitHub.
-
-The exact backend and database technologies will be selected during the backend architecture phase rather than introduced prematurely.
-
----
-
-# 23. Mock Data to Real Data (plan not final)
-
-The current mock data allows frontend development to continue before the backend exists.
-
-When backend development begins, do not replace mock data everywhere manually.
-
-Instead, establish a service boundary.
-
-For example:
-
-```text
-DashboardScreen
-      ↓
-dashboardService
-      ↓
-mockDashboardProvider
-```
-
-Later:
-
-```text
-DashboardScreen
-      ↓
-dashboardService
-      ↓
-apiClient
-      ↓
-Backend API
-```
-
-This allows the UI to remain relatively stable while the data source changes.
-
----
-
-# 24. Future Project Structure (plan not final)
-
-As Electron and backend development begin, the project may gradually evolve toward something similar to:
+As the architecture develops, the project may gradually evolve toward:
 
 ```text
 AGAP/
+
 ├── src/
 │   ├── components/
 │   ├── screens/
@@ -631,26 +888,49 @@ AGAP/
 
 ---
 
-# 25. Testing
+# 28. Testing
 
---
+Testing infrastructure has not yet been fully established.
+
+As development progresses, appropriate tests should be introduced for:
+
+* utility logic
+* services
+* data providers
+* API integration
+* IPC communication
+* critical user workflows
+
+Testing should be added according to the risk and importance of each part of the system rather than creating tests purely to increase coverage numbers.
 
 ---
 
+# 29. Documentation Responsibilities
 
-# 26. Documentation Responsibilities
+Update documentation when a change affects how the team develops, builds, runs, or understands AGAP.
 
-Update documentation when a change affects how the team develops or runs AGAP.
+Examples include:
+
+* new development commands
+* architecture changes
+* new dependencies
+* new project conventions
+* new service boundaries
+* Electron API changes
+* backend integration
+* deployment changes
+
+Documentation should describe the **actual current state** separately from future plans.
 
 ---
 
-# 27. Development Phases (not final)
+# 30. Development Phases
 
 The planned development progression is:
 
 ### Phase 1 — Frontend Prototype
 
-Current state:
+**Completed**
 
 * React
 * TypeScript
@@ -661,7 +941,7 @@ Current state:
 
 ### Phase 2 — GitHub and Development Workflow
 
-Current setup:
+**Completed**
 
 * Repository
 * `main`
@@ -670,24 +950,27 @@ Current setup:
 * Commit conventions
 * Pull Requests
 * Documentation
+* Team development rules
 
 ### Phase 3 — Electron Foundation
 
-Introduce:
+**Completed**
 
 * Electron
 * Main process
 * Preload
 * IPC
 * Desktop application startup
+* Secure renderer-to-main boundary
 
 ### Phase 4 — Architecture Preparation
 
-Introduce:
+**Current**
 
 * Service/data boundaries
 * Mock data providers
-* Clear separation between UI and data access
+* Separation between UI and data access
+* Clear Electron/API boundaries
 
 ### Phase 5 — Backend Foundation
 
@@ -737,5 +1020,4 @@ Prepare:
 * Installers
 * Production configuration
 * Release process
-
 
