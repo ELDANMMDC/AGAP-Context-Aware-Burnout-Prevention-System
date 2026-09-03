@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { PrimaryBtn, SecondaryBtn, Card, ProgressBar, Toggle } from '../../components/ui';
-import { getDays } from '../../services/settingsService';
+import { getDays, getWorkStyleOptions, type WorkStyle } from '../../services/settingsService';
 
 export function OnboardingShell({ children, step, total }: {
   children: ReactNode; step?: number; total?: number;
@@ -51,7 +51,7 @@ export function OnboardingShell({ children, step, total }: {
 export function WelcomeScreen({ onNext }: { onNext: () => void }) {
   const [agreed, setAgreed] = useState(false);
   return (
-    <OnboardingShell step={1} total={4}>
+    <OnboardingShell step={1} total={5}>
       <Card className="p-8">
         <h1 className="text-2xl font-semibold text-[#1F2937] leading-tight mb-2">
           Understand your work patterns
@@ -111,7 +111,7 @@ export function WelcomeScreen({ onNext }: { onNext: () => void }) {
 export function ProfileScreen({ onNext, onBack }: { onNext: (name: string) => void; onBack: () => void }) {
   const [name, setName] = useState('Alex');
   return (
-    <OnboardingShell step={2} total={4}>
+    <OnboardingShell step={2} total={5}>
       <Card className="p-8">
         <h2 className="text-lg font-semibold text-[#1F2937] mb-1">Set up your profile</h2>
         <p className="text-[#9CA3AF] text-xs mb-6">You can use a display name or leave this blank.</p>
@@ -153,7 +153,7 @@ export function WorkScheduleScreen({ onNext, onBack }: { onNext: () => void; onB
   const [enabled, setEnabled] = useState([true, true, true, true, true, false, false]);
 
   return (
-    <OnboardingShell step={3} total={4}>
+    <OnboardingShell step={3} total={5}>
       <Card className="p-8">
         <h2 className="text-lg font-semibold text-[#1F2937] mb-1">Your work schedule</h2>
         <p className="text-[#9CA3AF] text-xs mb-6">
@@ -198,7 +198,56 @@ export function WorkScheduleScreen({ onNext, onBack }: { onNext: () => void; onB
 }
 
 // ─────────────────────────────────────────────────────────────
-// SCREEN 4 — CALIBRATION
+// SCREEN 4 — WORK STYLE
+// ─────────────────────────────────────────────────────────────
+
+export function WorkStyleScreen({ onNext, onBack }: { onNext: (style: WorkStyle) => void; onBack: () => void }) {
+  const options = getWorkStyleOptions();
+  const [selected, setSelected] = useState<WorkStyle>('balanced');
+
+  return (
+    <OnboardingShell step={4} total={5}>
+      <Card className="p-8">
+        <h2 className="text-lg font-semibold text-[#1F2937] mb-1">How would you describe your work style?</h2>
+        <p className="text-[#9CA3AF] text-xs mb-6">
+          This helps AGAP recognize idle time in a way that fits how you actually work.
+        </p>
+
+        <div className="space-y-3 mb-6">
+          {options.map(option => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setSelected(option.value)}
+              className={`w-full text-left p-4 rounded-lg border transition-colors ${
+                selected === option.value
+                  ? 'border-[#185FA5] bg-[#F0F6FB]'
+                  : 'border-[#E5E7EB] hover:border-[#D1D5DB]'
+              }`}
+            >
+              <div className="text-sm font-medium text-[#1F2937] mb-0.5">
+                {option.label}
+              </div>
+              <div className="text-xs text-[#6B7280] leading-relaxed">
+                {option.description}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <p className="text-[10px] text-[#9CA3AF] mb-5">You can change this later in Settings.</p>
+
+        <div className="flex justify-between">
+          <SecondaryBtn onClick={onBack}>Back</SecondaryBtn>
+          <PrimaryBtn onClick={() => onNext(selected)}>Continue</PrimaryBtn>
+        </div>
+      </Card>
+    </OnboardingShell>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCREEN 5 — CALIBRATION
 // ─────────────────────────────────────────────────────────────
 
 export function CalibrationScreen({ onNext }: { onNext: () => void }) {
@@ -207,7 +256,7 @@ export function CalibrationScreen({ onNext }: { onNext: () => void }) {
   const isComplete = day >= total;
 
   return (
-    <OnboardingShell step={4} total={4}>
+    <OnboardingShell step={5} total={5}>
       <Card className="p-8">
         <h2 className="text-lg font-semibold text-[#1F2937] mb-1">Build your personal baseline</h2>
         <p className="text-[#9CA3AF] text-xs mb-6">
@@ -248,6 +297,6 @@ export function CalibrationScreen({ onNext }: { onNext: () => void }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SCREEN 5 — DASHBOARD
+// SCREEN 6 — DASHBOARD
 // ─────────────────────────────────────────────────────────────
 

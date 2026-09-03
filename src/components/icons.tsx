@@ -34,6 +34,22 @@ export function InfoIcon() {
   );
 }
 
+export function PauseIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <rect x="3" y="2" width="2.2" height="9" rx="0.5" />
+      <rect x="7.8" y="2" width="2.2" height="9" rx="0.5" />
+    </svg>
+  );
+}
+export function PlayIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+      <path d="M3.5 2.2v8.6l7-4.3-7-4.3z" />
+    </svg>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 // ONBOARDING SHELL
 // ─────────────────────────────────────────────────────────────

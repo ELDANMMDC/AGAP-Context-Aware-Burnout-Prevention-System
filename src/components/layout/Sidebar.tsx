@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { NavTab } from '../../types/agap';
 import { StatusIndicator } from '../ui';
 
-import { GridIcon, CheckIcon, GearIcon, InfoIcon } from '../icons';
+import { GridIcon, CheckIcon, GearIcon, InfoIcon, PauseIcon, PlayIcon } from '../icons';
 
 export function NavItem({
   item, active, onNav,
@@ -28,12 +28,13 @@ export function NavItem({
 
 // Minimal inline icons
 export function Sidebar({
-  activeTab, onNav, monitoring, onShowTray,
+  activeTab, onNav, monitoring, onShowTray, onToggleMonitor,
 }: {
   activeTab: NavTab;
   onNav: (tab: NavTab) => void;
   monitoring: boolean;
   onShowTray: () => void;
+  onToggleMonitor: () => void;
 }) {
   const mainItems: { key: NavTab; label: string; icon: ReactNode }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: <GridIcon /> },
@@ -76,12 +77,20 @@ export function Sidebar({
         ))}
       </nav>
 
-      <div className="px-5 py-4 border-t border-[#E5E7EB]">
+      <div className="px-5 py-4 border-t border-[#E5E7EB] flex items-center justify-between">
         <button onClick={onShowTray} className="flex items-center gap-1.5 group">
           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors ${monitoring ? 'bg-[#10B981]' : 'bg-[#9CA3AF]'}`} />
           <span className="text-xs text-[#9CA3AF] group-hover:text-[#6B7280] transition-colors">
             {monitoring ? 'Monitoring' : 'Paused'}
           </span>
+        </button>
+
+        <button
+          onClick={onToggleMonitor}
+          title={monitoring ? 'Pause monitoring' : 'Resume monitoring'}
+          className="w-6 h-6 flex items-center justify-center rounded-md text-[#9CA3AF] hover:text-[#1F2937] hover:bg-[#F3F4F6] transition-colors flex-shrink-0"
+        >
+          {monitoring ? <PauseIcon /> : <PlayIcon />}
         </button>
       </div>
     </div>

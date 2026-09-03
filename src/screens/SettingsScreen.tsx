@@ -32,11 +32,9 @@ const IDLE_PRESETS = [
 export function SettingsScreen({
   userName,
   monitoring,
-  onToggleMonitor,
 }: {
   userName: string;
   monitoring: boolean;
-  onToggleMonitor: () => void;
 }) {
   const [prefs, setPrefs] = useState({
     wellnessNotif: true,
@@ -56,6 +54,8 @@ export function SettingsScreen({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showIdleAdvisoryModal, setShowIdleAdvisoryModal] = useState(false);
+  const [pendingIdleThreshold, setPendingIdleThreshold] = useState<string | null>(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
@@ -132,11 +132,29 @@ export function SettingsScreen({
     );
 
   const handleIdleThresholdChange = (value: string) => {
-    setPrefs(prev => ({
-      ...prev,
-      idleThreshold: value,
-    }));
-  };
+  setPendingIdleThreshold(value);
+  setShowIdleAdvisoryModal(true);
+};
+
+const confirmIdleThresholdChange = () => {
+  if (pendingIdleThreshold === null) return;
+
+  setPrefs(prev => ({
+    ...prev,
+    idleThreshold: pendingIdleThreshold,
+  }));
+
+  // TODO(backend): trigger calibration reset here once wired up
+  setResetConfirmed(true);
+
+  setShowIdleAdvisoryModal(false);
+  setPendingIdleThreshold(null);
+};
+
+const cancelIdleThresholdChange = () => {
+  setShowIdleAdvisoryModal(false);
+  setPendingIdleThreshold(null);
+};
 
   const handleExport = () => {
     setShowExportModal(false);
@@ -266,18 +284,6 @@ export function SettingsScreen({
                 </option>
               ))}
             </select>
-          </div>
-
-          <div className="pt-2 border-t border-[#E5E7EB]">
-            {monitoring ? (
-              <SecondaryBtn onClick={onToggleMonitor}>
-                Pause monitoring
-              </SecondaryBtn>
-            ) : (
-              <PrimaryBtn onClick={onToggleMonitor}>
-                Resume monitoring
-              </PrimaryBtn>
-            )}
           </div>
         </div>
       </Card>
@@ -509,6 +515,30 @@ export function SettingsScreen({
             <DangerBtn onClick={handleResetCalibration}>
               Reset calibration
             </DangerBtn>
+          </div>
+        </Modal>
+      )}
+
+      {/* Idle threshold change advisory */}
+      {showIdleAdvisoryModal && (
+        <Modal
+          title="Change idle threshold?"
+          onClose={cancelIdleThresholdChange}
+        >
+          <p className="text-xs text-[#6B7280] mb-5 leading-relaxed">
+            Changing this affects how idle time is measured going forward.
+            Your current calibration baseline will be reset and AGAP will
+            need to recalibrate before showing risk indicators again.
+          </p>
+
+          <div className="flex justify-between">
+            <SecondaryBtn onClick={cancelIdleThresholdChange}>
+              Cancel
+            </SecondaryBtn>
+
+            <PrimaryBtn onClick={confirmIdleThresholdChange}>
+              Apply Change & Reset Calibration
+            </PrimaryBtn>
           </div>
         </Modal>
       )}
