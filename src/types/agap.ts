@@ -1,6 +1,6 @@
 export type RiskLevel = 'Low' | 'Elevated' | 'High';
 export type NavTab = 'dashboard' | 'checkin' | 'settings' | 'about';
-export type OnboardingStep = 'welcome' | 'profile' | 'schedule' | 'calibration' | null;
+export type OnboardingStep = 'welcome' | 'profile' | 'schedule' | 'workStyle' | 'calibration' | null;
 
 export interface Signal {
   value: string;

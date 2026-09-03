@@ -2,12 +2,31 @@ import { useState } from 'react';
 import type { NavTab, OnboardingStep, RiskLevel } from './types/agap';
 import { getDashboardData } from './services/dashboardService';
 import { Sidebar } from './components/layout/Sidebar';
+import { PrimaryBtn } from './components/ui';
 import { TrayMenu, NotificationToast, PrototypeSwitcher } from './components/overlays';
-import { WelcomeScreen, ProfileScreen, WorkScheduleScreen, CalibrationScreen } from './screens/onboarding/OnboardingScreens';
+import { WelcomeScreen, ProfileScreen, WorkScheduleScreen, WorkStyleScreen, CalibrationScreen } from './screens/onboarding/OnboardingScreens';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { CheckInScreen, CheckInCompleteScreen } from './screens/CheckInScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { AboutScreen } from './screens/AboutScreen';
+
+function PausedBlock({ onResume }: { onResume: () => void }) {
+  return (
+    <div className="w-full h-full flex items-center justify-center p-8">
+      <div className="max-w-[360px] text-center">
+        <div className="text-sm font-medium text-[#1F2937] mb-1.5">
+          Monitoring is paused
+        </div>
+        <p className="text-xs text-[#9CA3AF] mb-6 leading-relaxed">
+          This screen is unavailable while monitoring is paused. Resume monitoring to continue using AGAP.
+        </p>
+        <PrimaryBtn onClick={onResume}>
+          Resume monitoring
+        </PrimaryBtn>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [onboarding, setOnboarding] = useState<OnboardingStep>('welcome');
@@ -41,8 +60,20 @@ export default function App() {
   if (onboarding === 'schedule') {
     return (
       <WorkScheduleScreen
-        onNext={() => setOnboarding('calibration')}
+        onNext={() => setOnboarding('workStyle')}
         onBack={() => setOnboarding('profile')}
+      />
+    );
+  }
+  if (onboarding === 'workStyle') {
+    return (
+      <WorkStyleScreen
+        onNext={style => {
+          // TODO(backend): persist getIdleThresholdForWorkStyle(style) as the
+          // user's idle threshold once settings are wired to a real store.
+          setOnboarding('calibration');
+        }}
+        onBack={() => setOnboarding('schedule')}
       />
     );
   }
@@ -52,12 +83,14 @@ export default function App() {
 
   // Main app shell
   const renderMain = () => {
+    if (!monitoring && activeTab !== 'about') {
+      return <PausedBlock onResume={() => setMonitoring(true)} />;
+    }
     if (activeTab === 'dashboard') {
       return (
         <DashboardScreen
           state={state}
           userName={userName}
-          monitoring={monitoring}
           onNav={navTo}
         />
       );
@@ -82,7 +115,6 @@ export default function App() {
         <SettingsScreen
           userName={userName}
           monitoring={monitoring}
-          onToggleMonitor={() => setMonitoring(m => !m)}
         />
       );
     }
@@ -99,6 +131,7 @@ export default function App() {
         onNav={navTo}
         monitoring={monitoring}
         onShowTray={() => setShowTray(t => !t)}
+        onToggleMonitor={() => setMonitoring(m => !m)}
       />
 
       <main className="flex-1 overflow-y-auto bg-[#F9FAFB]">

@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import type { DashboardData, NavTab, RiskLevel } from '../types/agap';
-import { Card, PrimaryBtn, RiskBadge, SectionLabel, StatusIndicator, TextBtn, Modal } from '../components/ui';
+import { Card, PrimaryBtn, RiskBadge, SectionLabel, TextBtn, Modal } from '../components/ui';
 import { TrendChart } from '../components/charts/TrendChart';
 import { signalColor } from '../lib/signal';
 import { NotificationPopover } from '../components/notifications/NotificationPopover.tsx';
 
 
 export function DashboardScreen({
-  state, userName, monitoring, onNav,
+  state, userName, onNav,
 }: {
-  state: DashboardData; userName: string; monitoring: boolean; onNav: (tab: NavTab) => void;
+  state: DashboardData; userName: string; onNav: (tab: NavTab) => void;
 }) {
   const [showExplainer, setShowExplainer] = useState(false);
   const hour = new Date().getHours();
@@ -44,7 +44,6 @@ export function DashboardScreen({
           </p>
         </div>
         <div className="pt-1 flex items-center gap-2">
-          <StatusIndicator active={monitoring} />
           <NotificationPopover />
         </div>
       </div>
